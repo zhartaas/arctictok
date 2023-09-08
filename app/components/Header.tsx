@@ -1,4 +1,37 @@
+'use client';
+import Dropdown2 from "./Dropdown2";
+import { articleService } from "../services/ArticleService";
+import { useState } from "react";
+import { TypeArticle } from "./Container";
+import useArticleStore from "../store/articles";
+
+
+const sampleArticle = {
+    article_name :  "Unleashing the Power of the Mind: The Psychology of Success",
+    content :  "Have you ever wondered what sets successful individuals apart from the rest? Is it their intelligence, talent, or luck? While these factors certainly play a role, the underlying key to success lies in the power of the mind. Welcome to the fascinating world of psychology, where understanding human behavior and harnessing the power of the mind can unlock unlimited potential. In this article, we will delve into the psychology of success and explore how our thoughts, beliefs, and motivations shape our achievements. Get ready to discover the secrets to unleashing your full potential and achieving greatness!",
+    created_date : "2023-08-10T08:27:39+0000",
+    topic : "Psychology"
+}
+
 const Header = () => {
+  const [userChoice, setUserChoice] = useState<string>("")
+  const [loading, setLoading] = useState(false)
+
+  const addArticle = useArticleStore(s => s.addArticle)
+
+  async function generate_article(){
+        setLoading(true)
+        const res: {article: TypeArticle} = await articleService.generate_article(userChoice)
+
+        console.log(res)
+
+        if(res.article !== null) {
+          addArticle(res.article)  
+        }
+
+        setLoading(false)
+    }
+
   return (
     <header className="sticky top-0 w-full bg-slate-50 border rounded z-10">
       <div className="w-full md:max-w-4xl mx-auto flex flex-wrap items-center justify-between mt-0 py-3">
@@ -27,31 +60,49 @@ const Header = () => {
           id="nav-content"
         >
           <ul className="list-reset lg:flex justify-end flex-1 items-center">
-            <li className="mr-3">
+            {/* <li className="mr-3">
               <a
                 className="inline-block text-gray-600 no-underline hover:text-gray-900 hover:text-underline py-2 px-4"
                 href="signin" data-dropdown
               >
                 Select topics
               </a>
+            </li> */}
+            <li>
+              <Dropdown2 userChoice={userChoice} setUserChoice={setUserChoice}></Dropdown2>
             </li>
-            <li className="mr-3">
+            {/* <li className="mr-3">
               <a
                 className="inline-block text-gray-600 no-underline hover:text-gray-900 hover:text-underline py-2 px-4"
                 href="#"
               >
                 link
               </a>
-            </li>
+            </li> */}
+            {
+              !loading ? (
+
             <li className="mr-3">
-              <a
+              <button
                 className="inline-block py-2 px-4 text-gray-900 font-bold no-underline"
-                href="#"
+                onClick={() => generate_article()}
               >
                 Generate new article
-              </a>
+              </button>
             </li>
+              ) : (
+
+            <li className="mr-3">
+              <button
+                className="inline-block py-2 px-4 text-gray-500 font-bold no-underline"
+              >
+                Loading...
+              </button>
+            </li>
+              )
+            }
           </ul>
+          {userChoice}
         </div>
       </div>
       <hr />
